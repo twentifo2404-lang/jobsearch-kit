@@ -53,3 +53,6 @@ Say "set up a second person called sam". Their files go in `candidates/sam/`, an
 - **Job site rules:** LinkedIn and some boards don't allow automated tools and can restrict accounts that apply too fast. Keep batches modest and spread them out.
 - **Review the work.** Spot-check submitted applications, especially early on.
 - **Keep your copy private** and don't commit your personal files. `.gitignore` already blocks CVs, logs, `HANDOFF.md` and `candidates/`.
+
+## Video credits
+The walkthrough video in `docs/media/` is narrated by an AI voice made with [OmniVoice](https://huggingface.co/k2-fsa/OmniVoice) (Han Zhu and coauthors), whose model licence is CC BY-NC. The video is therefore for non-commercial use only, and the MIT licence covers the code, not the video. Sound effects are from Pixabay.
