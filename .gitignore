@@ -1,0 +1,26 @@
+# Personal data: never commit
+HANDOFF.md
+application_log*.csv
+claims.csv
+recruiter_contacts.csv
+candidates/
+cv/*
+!cv/.gitkeep
+*.pdf
+*.docx
+*.doc
+*.jpg
+*.jpeg
+*.png
+prep_*.md
+followup_drafts.md
+*_draft*.md
+
+# Tool / OS junk
+.jobs.lock
+.firecrawl/
+.superpowers/
+.tmp_*
+__pycache__/
+.DS_Store
+.claude/settings.local.json
