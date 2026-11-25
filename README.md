@@ -2,7 +2,7 @@
 
 A folder that lets Claude (and optionally Codex) apply for jobs for you, in your own browser, without applying to the same job twice.
 
-> **New to Claude or GitHub? Start with the [step-by-step tutorial](TUTORIAL.md).** It covers subscribing, installing everything and your first batch of applications. No coding needed.
+> **New to Claude or GitHub? Start with the [step-by-step guide](https://twentifo2404-lang.github.io/jobsearch-kit/).** It covers subscribing, installing everything and your first batch of applications. No coding needed.
 
 - **You stay in control.** Claude fills forms using only answers you've confirmed. You type every password, tick every consent box and approve every message to a recruiter.
 - **One log.** Every application, skip and failure goes into `application_log.csv` through `jobs.py`, so nothing gets applied to twice, even with two agents working at once.
@@ -41,7 +41,7 @@ Say "set up a second person called sam". Their files go in `candidates/sam/`, an
 ## What's in here
 | File | Purpose |
 |---|---|
-| `TUTORIAL.md` | Beginner guide: subscribe, install, set up, apply |
+| `docs/` | The beginner guide website (https://twentifo2404-lang.github.io/jobsearch-kit/) |
 | `AGENTS.md` | Rules every agent follows (shared by Claude and Codex) |
 | `CLAUDE.md` | Points Claude to AGENTS.md and the skills |
 | `HANDOFF.template.md` | Blank profile; setup turns it into your `HANDOFF.md` |

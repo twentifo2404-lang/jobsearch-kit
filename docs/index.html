@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Search Kit: let Claude apply for jobs for you</title>
+<meta name="description" content="A step-by-step guide for complete beginners: subscribe to Claude, install it, and let it apply for jobs in your own browser without applying twice.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Familjen+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFCFE;
+  --grid:#E3E9F6;
+  --ink:#14213D;
+  --pen:#2443B8;
+  --muted:#56627C;
+  --marker:#FFE867;
+  --marker-edge:#E9CF2E;
+  --ok:#1E7A4C;
+  --skip:#9A5B00;
+  --rule:#C9D3EA;
+  --measure:66ch;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:1.5rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;color:var(--ink);
+  font:1.0625rem/1.65 "Atkinson Hyperlegible",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+h1,h2,h3{font-family:"Familjen Grotesk",system-ui,sans-serif;line-height:1.15;margin:0}
+a{color:var(--pen);text-underline-offset:.18em;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--pen);outline-offset:3px;border-radius:2px}
+code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em}
+code{background:#EEF2FB;padding:.1em .35em;border-radius:3px}
+.skip-link{position:absolute;left:-999px;top:0;background:var(--ink);color:#fff;padding:.5rem 1rem;z-index:10}
+.skip-link:focus{left:1rem;top:1rem}
+
+/* ---------- hero ---------- */
+.hero{
+  max-width:1120px;margin:0 auto;padding:4.5rem 1.5rem 3.5rem;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:3.5rem;align-items:center;
+}
+.hero h1{font-size:clamp(2.4rem,5.2vw,4rem);font-weight:700;letter-spacing:-.025em;max-width:13ch}
+.hero .lede{font-size:1.2rem;color:var(--muted);max-width:42ch;margin:1.25rem 0 1.75rem}
+.hero .facts{list-style:none;padding:0;margin:0 0 2rem;display:grid;gap:.45rem}
+.hero .facts li{padding-left:1.6rem;position:relative}
+.hero .facts li::before{content:"✓";position:absolute;left:0;top:0;color:var(--pen);font-weight:700}
+.btn{
+  display:inline-block;font-family:"Familjen Grotesk",sans-serif;font-weight:700;font-size:1.05rem;
+  background:var(--pen);color:#fff;text-decoration:none;padding:.8rem 1.4rem;border-radius:6px;
+}
+.btn:hover{background:#1A3290}
+.btn.ghost{background:transparent;color:var(--pen);border:2px solid var(--pen);padding:calc(.8rem - 2px) calc(1.4rem - 2px)}
+.btn.ghost:hover{background:#EEF2FB}
+.hero .actions{display:flex;flex-wrap:wrap;gap:.75rem}
+
+/* the logbook */
+.logbook{
+  background:#fff;border:1px solid var(--rule);border-radius:4px;
+  box-shadow:6px 6px 0 var(--grid);
+  font-size:.92rem;overflow:hidden;
+}
+.logbook header{display:flex;justify-content:space-between;align-items:baseline;padding:.85rem 1.1rem;border-bottom:2px solid var(--ink)}
+.logbook header h2{font-size:1rem}
+.logbook header span{color:var(--muted);font-size:.85rem}
+.logbook table{width:100%;border-collapse:collapse}
+.logbook th{text-align:left;font-weight:700;color:var(--muted);font-size:.8rem;padding:.5rem 1.1rem;border-bottom:1px solid var(--rule)}
+.logbook td{padding:.62rem 1.1rem;border-bottom:1px solid var(--grid);vertical-align:top}
+.logbook tr:last-child td{border-bottom:0}
+.logbook td.who{color:var(--muted);white-space:nowrap}
+.status{font-weight:700;white-space:nowrap}
+.status.ok{color:var(--ok)}
+.status.skip{color:var(--skip)}
+.logbook .reason{display:block;font-weight:400;color:var(--muted);font-size:.84rem;white-space:normal}
+.logbook tbody tr{opacity:1}
+.js .logbook tbody tr.pending{opacity:0;transform:translateY(4px)}
+.logbook tbody tr{transition:opacity .35s ease,transform .35s ease}
+@media (prefers-reduced-motion:reduce){.js .logbook tbody tr.pending{opacity:1;transform:none}}
+.logbook footer{padding:.7rem 1.1rem;background:#F5F7FC;color:var(--muted);font-size:.85rem;border-top:1px solid var(--rule)}
+
+/* ---------- marker ---------- */
+mark,.you{
+  background:linear-gradient(100deg,transparent 0 .2em,var(--marker) .2em calc(100% - .25em),transparent calc(100% - .25em));
+  color:inherit;padding:0 .25em;margin:0 -.1em;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;
+}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1120px;margin:0 auto;padding:0 1.5rem 5rem;display:grid;grid-template-columns:250px minmax(0,1fr);gap:3.5rem}
+.toc{position:sticky;top:1.5rem;align-self:start}
+.toc-card{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:1.1rem 1.1rem .9rem}
+.toc h2{font-size:1rem;margin-bottom:.2rem}
+.progress-text{color:var(--muted);font-size:.88rem;margin:0 0 .6rem}
+.bar{height:6px;background:var(--grid);border-radius:3px;overflow:hidden;margin-bottom:.9rem}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+.toc ol{list-style:none;margin:0;padding:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc li a{display:flex;gap:.6rem;align-items:baseline;padding:.32rem .2rem;text-decoration:none;color:var(--ink);font-size:.95rem;border-radius:3px}
+.toc li a::before{content:counter(t);flex:0 0 1.35rem;height:1.35rem;display:inline-grid;place-items:center;border:1.5px solid var(--rule);border-radius:50%;font-size:.75rem;font-weight:700;color:var(--muted)}
+.toc li.done a::before{content:"✓";background:var(--ok);border-color:var(--ok);color:#fff}
+.toc li a:hover{background:#EEF2FB}
+.toc .extra{border-top:1px solid var(--rule);margin-top:.7rem;padding-top:.6rem;display:grid;gap:.15rem}
+.toc .extra a{font-size:.92rem;text-decoration:none;padding:.2rem}
+
+.os-switch{margin-top:1rem;background:#fff;border:1px solid var(--rule);border-radius:4px;padding:.9rem 1.1rem}
+.os-switch p{margin:0 0 .5rem;font-size:.9rem;color:var(--muted)}
+.seg{display:flex;border:1.5px solid var(--pen);border-radius:6px;overflow:hidden}
+.seg button{flex:1;font:inherit;font-weight:700;font-size:.95rem;padding:.45rem;border:0;background:#fff;color:var(--pen);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--pen);color:#fff}
+
+main{min-width:0}
+.key{
+  max-width:var(--measure);background:#fff;border:1px solid var(--rule);border-left:6px solid var(--marker-edge);
+  padding:1rem 1.25rem;border-radius:4px;margin-bottom:3rem
+}
+.key p{margin:0}
+
+.pieces{max-width:var(--measure);margin-bottom:3.5rem}
+.pieces h2{font-size:1.6rem;margin-bottom:1rem}
+.pieces dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:.75rem 1.5rem;background:#fff;border:1px solid var(--rule);border-radius:4px;padding:1.25rem 1.4rem}
+.pieces dt{font-weight:700}
+.pieces dd{margin:0;color:var(--muted)}
+
+.step{max-width:var(--measure);margin:0 0 3.75rem;padding-top:.25rem}
+.step-head{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem}
+.num{
+  flex:0 0 auto;font-family:"Familjen Grotesk",sans-serif;font-weight:700;font-size:2.6rem;line-height:.9;
+  color:var(--pen);min-width:2.2ch
+}
+.step h2{font-size:clamp(1.5rem,2.6vw,1.95rem);letter-spacing:-.01em}
+.step .time{color:var(--muted);font-size:.92rem;margin:.3rem 0 0}
+.step ol,.step ul{padding-left:1.35rem}
+.step li{margin:.45rem 0}
+.step li::marker{color:var(--pen);font-weight:700}
+.step p{margin:.8rem 0}
+
+.say{
+  margin:1.1rem 0;background:#fff;border:1.5px solid var(--ink);border-radius:10px 10px 10px 2px;
+  padding:.85rem 1.1rem;font-size:1.12rem;font-weight:700;position:relative;max-width:46ch
+}
+.say small{display:block;font-weight:400;color:var(--muted);font-size:.82rem;margin-bottom:.15rem}
+
+.note{background:#F2F5FC;border-radius:4px;padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.98rem}
+.note.warn{background:#FFF6E0}
+.note strong:first-child{display:block;margin-bottom:.15rem}
+
+.tick{
+  display:flex;gap:.75rem;align-items:center;margin-top:1.4rem;padding:.75rem 1rem;
+  border:1.5px dashed var(--rule);border-radius:6px;cursor:pointer;background:#fff;
+}
+.tick input{width:1.3rem;height:1.3rem;accent-color:var(--ok);margin:0;flex:0 0 auto;cursor:pointer}
+.tick span{font-size:.98rem}
+.tick.checked{border-style:solid;border-color:var(--ok);background:#F0F8F3}
+
+.dl-btn{margin:.4rem 0 .2rem}
+.path{display:inline-block;background:#fff;border:1px solid var(--rule);border-radius:4px;padding:.1rem .45rem;font-family:ui-monospace,Menlo,monospace;font-size:.88rem}
+
+body[data-os="mac"] [data-os="win"],
+body[data-os="win"] [data-os="mac"]{display:none}
+.os-tag{font-size:.8rem;font-weight:700;color:var(--pen);border:1px solid var(--pen);border-radius:3px;padding:0 .35rem;margin-right:.35rem;vertical-align:.1em}
+
+/* table of who-does-what */
+.handoff{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--rule);border-radius:4px;overflow:hidden;font-size:.98rem;margin-top:1rem}
+.handoff th,.handoff td{text-align:left;padding:.7rem 1rem;border-bottom:1px solid var(--grid);vertical-align:top}
+.handoff thead th{border-bottom:2px solid var(--ink);font-family:"Familjen Grotesk",sans-serif}
+.handoff tr:last-child td{border-bottom:0}
+.handoff td:first-child{font-weight:700;width:42%}
+
+.phrases{display:grid;gap:.6rem;margin-top:1rem}
+.phrases .say{margin:0}
+
+details{background:#fff;border:1px solid var(--rule);border-radius:4px;margin:.6rem 0}
+summary{cursor:pointer;padding:.8rem 1.1rem;font-weight:700;list-style-position:outside;margin-left:1rem}
+details[open] summary{border-bottom:1px solid var(--grid)}
+details > div{padding:.2rem 1.1rem .9rem}
+
+.site-foot{max-width:1120px;margin:0 auto;padding:2rem 1.5rem 3rem;border-top:1px solid var(--rule);color:var(--muted);font-size:.92rem}
+
+/* ---------- responsive ---------- */
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;padding-top:3rem;gap:2.5rem}
+  .wrap{grid-template-columns:1fr;gap:1.5rem}
+  .toc{position:static}
+  .toc ol{display:grid;grid-template-columns:1fr 1fr;column-gap:.5rem}
+}
+@media (max-width:560px){
+  body{font-size:1rem}
+  .logbook td.where,.logbook th.where{display:none}
+  .toc ol{grid-template-columns:1fr}
+  .pieces dl{grid-template-columns:1fr;gap:.2rem}
+  .pieces dd{margin-bottom:.7rem}
+  .handoff td:first-child{width:auto}
+  .num{font-size:2rem}
+}
+</style>
+</head>
+<body data-os="mac">
+<a class="skip-link" href="#steps">Skip to the steps</a>
+
+<section class="hero" aria-labelledby="title">
+  <div>
+    <h1 id="title">Let Claude apply for jobs for you</h1>
+    <p class="lede">Claude searches the job sites in your own browser, fills in each form with answers you've already confirmed, and keeps a log so it never applies to the same job twice.</p>
+    <ul class="facts">
+      <li>No coding, and no GitHub account needed</li>
+      <li>About 30–45 minutes to set up, once</li>
+      <li>Your CVs and answers stay on your computer</li>
+    </ul>
+    <div class="actions">
+      <a class="btn" href="#step-1">Start the setup</a>
+      <a class="btn ghost" href="#how">How it works</a>
+    </div>
+  </div>
+
+  <figure class="logbook" aria-label="Example of the application log Claude keeps" style="margin:0">
+    <header><h2>application_log.csv</h2><span>example batch</span></header>
+    <table>
+      <thead><tr><th>Job</th><th class="where">Where</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Graduate Process Engineer<br><span class="who">Northfield Chemicals</span></td><td class="where who">LinkedIn</td><td class="status ok">Submitted</td></tr>
+        <tr><td>Operations Executive<br><span class="who">Harbour Logistics</span></td><td class="where who">JobStreet</td><td class="status ok">Submitted</td></tr>
+        <tr><td>Sales Engineer<br><span class="who">Lumen Controls</span></td><td class="where who">JobStreet</td><td class="status skip">Skipped<span class="reason">needs Mandarin</span></td></tr>
+        <tr><td>Project Coordinator<br><span class="who">Arcadia Builders</span></td><td class="where who">Company site</td><td class="status ok">Submitted</td></tr>
+        <tr><td>Graduate Process Engineer<br><span class="who">Northfield Chemicals</span></td><td class="where who">JobStreet</td><td class="status skip">Skipped<span class="reason">same job, already applied on LinkedIn</span></td></tr>
+      </tbody>
+    </table>
+    <footer>Every application, skip and reason is written down, so you always know where you've applied.</footer>
+  </figure>
+</section>
+
+<div class="wrap">
+  <aside class="toc" aria-label="Steps">
+    <div class="toc-card">
+      <h2>Your progress</h2>
+      <p class="progress-text" id="progress-text">0 of 7 steps done</p>
+      <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+      <ol>
+        <li data-step="1"><a href="#step-1">Subscribe to Claude</a></li>
+        <li data-step="2"><a href="#step-2">Install the Claude app</a></li>
+        <li data-step="3"><a href="#step-3">Set up Chrome</a></li>
+        <li data-step="4"><a href="#step-4">Download the kit</a></li>
+        <li data-step="5"><a href="#step-5">Add your CVs</a></li>
+        <li data-step="6"><a href="#step-6">Set yourself up</a></li>
+        <li data-step="7"><a href="#step-7">Apply for jobs</a></li>
+      </ol>
+      <div class="extra">
+        <a href="#you-do">What you do yourself</a>
+        <a href="#after">Every time after</a>
+        <a href="#help">If something goes wrong</a>
+      </div>
+    </div>
+    <div class="os-switch">
+      <p id="os-label">Show instructions for</p>
+      <div class="seg" role="group" aria-labelledby="os-label">
+        <button type="button" data-set-os="mac" aria-pressed="true">Mac</button>
+        <button type="button" data-set-os="win" aria-pressed="false">Windows</button>
+      </div>
+    </div>
+  </aside>
+
+  <main id="steps">
+    <div class="key">
+      <p><span class="you">Highlighted text</span> is something you do yourself, such as typing a password or paying. Claude does everything else and will tell you when it needs you.</p>
+    </div>
+
+    <section class="pieces" id="how" aria-labelledby="pieces-h">
+      <h2 id="pieces-h">What you're setting up</h2>
+      <dl>
+        <dt>A Claude subscription</dt><dd>A paid Claude account. The free plan can't run the tools this uses.</dd>
+        <dt>The Claude app</dt><dd>Claude on your computer. Its Code tab is where Claude works with your files.</dd>
+        <dt>Claude in Chrome</dt><dd>An add-on that lets Claude open job sites and fill in forms in your browser.</dd>
+        <dt>The Job Search Kit</dt><dd>A folder you download. It holds your CVs, your answers and the log of jobs applied to.</dd>
+      </dl>
+    </section>
+
+    <!-- 1 -->
+    <section class="step" id="step-1" aria-labelledby="h1s">
+      <div class="step-head"><span class="num" aria-hidden="true">1</span><div><h2 id="h1s">Subscribe to Claude</h2><p class="time">About 5 minutes</p></div></div>
+      <ol>
+        <li>Go to <a href="https://claude.ai">claude.ai</a> and click <strong>Sign up</strong>. Signing in with Google is fine.</li>
+        <li>Open the menu at the bottom-left (your name) → <strong>Settings</strong> → <strong>Billing</strong>, or go straight to <a href="https://claude.ai/upgrade">claude.ai/upgrade</a>.</li>
+        <li>Choose <strong>Pro</strong>. It's the cheapest paid plan and enough to start. See <a href="https://claude.com/pricing">claude.com/pricing</a> for the price in your currency.</li>
+        <li><span class="you">Type your card details yourself.</span> Never paste card details into a chat with Claude.</li>
+      </ol>
+      <div class="note"><strong>Pro or Max?</strong>Start with Pro. If Claude often says you've reached your usage limit for the day, you can move up to Max later.</div>
+      <label class="tick"><input type="checkbox" data-done="1"><span>Done: my account shows the Pro plan</span></label>
+    </section>
+
+    <!-- 2 -->
+    <section class="step" id="step-2" aria-labelledby="h2s">
+      <div class="step-head"><span class="num" aria-hidden="true">2</span><div><h2 id="h2s">Install the Claude app</h2><p class="time">About 5 minutes</p></div></div>
+      <ol>
+        <li>Go to <a href="https://claude.ai/download">claude.ai/download</a> and download the app for your computer.</li>
+        <li data-os="mac">Open the downloaded file and drag <strong>Claude</strong> into <strong>Applications</strong>. Then open it from Applications.</li>
+        <li data-os="win">Open the downloaded installer and follow the prompts. Then open Claude from the Start menu.</li>
+        <li>Sign in with the same account as step 1.</li>
+        <li>At the top of the app you'll see tabs such as <strong>Chat</strong> and <strong>Code</strong>. You'll use <strong>Code</strong>.</li>
+      </ol>
+      <div class="note"><strong>Don't see a Code tab?</strong>Update the app and check you're signed in to the account with the paid plan.</div>
+      <label class="tick"><input type="checkbox" data-done="2"><span>Done: I can open the Code tab</span></label>
+    </section>
+
+    <!-- 3 -->
+    <section class="step" id="step-3" aria-labelledby="h3s">
+      <div class="step-head"><span class="num" aria-hidden="true">3</span><div><h2 id="h3s">Set up Chrome</h2><p class="time">About 10 minutes</p></div></div>
+      <p>Claude fills in applications inside Google Chrome, so it needs Chrome plus the Claude add-on.</p>
+      <ol>
+        <li>No Chrome yet? Download it from <a href="https://www.google.com/chrome/">google.com/chrome</a>.</li>
+        <li>In Chrome, open the <strong>Chrome Web Store</strong>, search for <strong>Claude</strong> and click <strong>Add to Chrome</strong>. Check the publisher says <strong>Anthropic</strong>.</li>
+        <li>Click the puzzle-piece icon at the top-right of Chrome and pin Claude so it's always visible.</li>
+        <li>Click the Claude icon and sign in with the same Claude account.</li>
+        <li><span class="you">Sign in to your job sites in this Chrome</span>: LinkedIn, JobStreet, Indeed, whatever you use. Claude uses whichever account is signed in.</li>
+      </ol>
+      <div class="note warn"><strong>Sharing the computer?</strong>If someone else's LinkedIn or email is signed in on this Chrome, make your own Chrome profile (Chrome menu → Profiles → Add) so Claude never applies from the wrong account.</div>
+      <label class="tick"><input type="checkbox" data-done="3"><span>Done: Claude is pinned in Chrome and I'm signed in to my job sites</span></label>
+    </section>
+
+    <!-- 4 -->
+    <section class="step" id="step-4" aria-labelledby="h4s">
+      <div class="step-head"><span class="num" aria-hidden="true">4</span><div><h2 id="h4s">Download the kit</h2><p class="time">About 2 minutes</p></div></div>
+      <p>You don't need a GitHub account. It's one download.</p>
+      <p class="dl-btn"><a class="btn" href="https://github.com/twentifo2404-lang/jobsearch-kit/archive/refs/heads/main.zip">Download the kit (ZIP)</a></p>
+      <ol>
+        <li data-os="mac">Open your <strong>Downloads</strong> folder and double-click the ZIP to unzip it.</li>
+        <li data-os="win">Open your <strong>Downloads</strong> folder, right-click the ZIP → <strong>Extract All…</strong> → <strong>Extract</strong>.</li>
+        <li>You'll get a folder called <span class="path">jobsearch-kit-main</span>. Rename it to <span class="path">jobsearch</span> and move it to your <strong>Desktop</strong>, so it's easy to find. Don't leave it in Downloads.</li>
+      </ol>
+      <details>
+        <summary>Already use GitHub?</summary>
+        <div><p>Open <a href="https://github.com/twentifo2404-lang/jobsearch-kit">the repository</a>, click <strong>Use this template</strong> → <strong>Create a new repository</strong>, set it to <strong>Private</strong>, and clone your copy. Your personal files are ignored by git, so they won't be uploaded.</p></div>
+      </details>
+      <label class="tick"><input type="checkbox" data-done="4"><span>Done: there's a <span class="path">jobsearch</span> folder on my Desktop</span></label>
+    </section>
+
+    <!-- 5 -->
+    <section class="step" id="step-5" aria-labelledby="h5s">
+      <div class="step-head"><span class="num" aria-hidden="true">5</span><div><h2 id="h5s">Add your CVs</h2><p class="time">About 2 minutes</p></div></div>
+      <ol>
+        <li>Open the <span class="path">jobsearch</span> folder, then the <span class="path">cv</span> folder inside it.</li>
+        <li><span class="you">Copy your CV PDFs into it.</span> If you have different CVs for different kinds of job, add them all.</li>
+        <li>Give them clear names, like <span class="path">Sam_Lee_Engineering_CV.pdf</span>.</li>
+      </ol>
+      <div class="note"><strong>Your files stay with you.</strong>Nothing in this folder is uploaded anywhere, except a CV Claude attaches to a job you asked it to apply for.</div>
+      <label class="tick"><input type="checkbox" data-done="5"><span>Done: my CVs are in the cv folder</span></label>
+    </section>
+
+    <!-- 6 -->
+    <section class="step" id="step-6" aria-labelledby="h6s">
+      <div class="step-head"><span class="num" aria-hidden="true">6</span><div><h2 id="h6s">Set yourself up</h2><p class="time">About 15 minutes of answering questions</p></div></div>
+      <ol>
+        <li>Open the Claude app → <strong>Code</strong>.</li>
+        <li>Start a new session and choose your <span class="path">jobsearch</span> folder as the folder to work in. If it asks whether you trust the folder, say yes. It's your own folder.</li>
+        <li>In the message box, type:</li>
+      </ol>
+      <p class="say"><small>You type</small>set me up</p>
+      <p>Claude will then:</p>
+      <ul>
+        <li><strong>Check for Python</strong>, a small free program the kit needs. If it's missing:
+          <ul>
+            <li data-os="mac">A pop-up may offer to install “command line developer tools”. <span class="you">Click Install</span> and wait for it to finish.</li>
+            <li data-os="win"><span class="you">Install it from <a href="https://www.python.org/downloads/">python.org/downloads</a></span>. On the first installer screen, tick <strong>Add python.exe to PATH</strong> before clicking Install. Then close and reopen the Claude app.</li>
+          </ul>
+        </li>
+        <li><strong>Read your CVs</strong> and show you what it found. <span class="you">Correct anything that's wrong.</span></li>
+        <li><strong>Ask you questions</strong> a few at a time: the jobs and cities you want, your salary, what you won't do, and the usual form questions such as notice period, driving licence and work rights.</li>
+      </ul>
+      <div class="note"><strong>Not sure about an answer?</strong>Say “ask me each time”. Claude will never make one up.</div>
+      <p>At the end, Claude saves everything in a file called <span class="path">HANDOFF.md</span>. <span class="you">Open it and read it once.</span> Every answer Claude puts on a form comes from this file or your CV.</p>
+      <label class="tick"><input type="checkbox" data-done="6"><span>Done: Claude says setup is finished</span></label>
+    </section>
+
+    <!-- 7 -->
+    <section class="step" id="step-7" aria-labelledby="h7s">
+      <div class="step-head"><span class="num" aria-hidden="true">7</span><div><h2 id="h7s">Apply for jobs</h2><p class="time">Start small: 5 jobs the first time</p></div></div>
+      <ol>
+        <li>Make sure Chrome is open and the Claude add-on is signed in.</li>
+        <li>In the Code tab, in your <span class="path">jobsearch</span> folder, type something like:</li>
+      </ol>
+      <p class="say"><small>You type</small>apply for jobs: 5 from LinkedIn, posted in the last 3 days</p>
+      <p>Claude then:</p>
+      <ol>
+        <li>searches the job site in your Chrome</li>
+        <li>reads each ad and skips the ones that break your rules, noting why</li>
+        <li>shows you a shortlist and <span class="you">waits for your OK</span></li>
+        <li>applies one job at a time with the right CV and your saved answers</li>
+        <li>writes every application, skip and failure into the log</li>
+      </ol>
+      <p>You can watch it work in Chrome and type in the chat at any time: “skip this one”, “stop”, “use my business CV for this”.</p>
+      <label class="tick"><input type="checkbox" data-done="7"><span>Done: my first batch is in the log</span></label>
+    </section>
+
+    <section class="step" id="you-do" aria-labelledby="you-h">
+      <h2 id="you-h">What you do yourself</h2>
+      <p>Claude hands these to you. That's on purpose, to keep you in control of anything personal or permanent.</p>
+      <table class="handoff">
+        <thead><tr><th scope="col">When this comes up</th><th scope="col">What you do</th></tr></thead>
+        <tbody>
+          <tr><td>A password or sign-in</td><td><span class="you">Type it yourself in Chrome</span>, then tell Claude “done”.</td></tr>
+          <tr><td>Creating an account on a company careers site</td><td>Claude fills in the form, and <span class="you">you type the password</span>.</td></tr>
+          <tr><td>“I agree to the terms” boxes</td><td>Claude asks first. <span class="you">Read it</span>, then tick it or tell Claude it's OK.</td></tr>
+          <tr><td>A question Claude has no saved answer for</td><td><span class="you">Answer it in the chat.</span> Claude saves it so it won't ask again.</td></tr>
+          <tr><td>IC, passport or bank numbers</td><td><span class="you">Always you.</span> Claude won't type them.</td></tr>
+          <tr><td>Messages to recruiters</td><td>Claude shows you the draft and <span class="you">sends only after you say yes</span>.</td></tr>
+          <tr><td>Online tests and video interviews</td><td><span class="you">You take them.</span> Claude reminds you of deadlines it sees.</td></tr>
+          <tr><td>The app asks “Allow Claude to…?”</td><td>The app is checking before Claude runs something. <span class="you">Click Allow</span> if it matches what you asked for.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="step" id="after" aria-labelledby="after-h">
+      <h2 id="after-h">Every time after</h2>
+      <p>Open the Claude app → <strong>Code</strong> → your <span class="path">jobsearch</span> folder, and say what you want:</p>
+      <div class="phrases">
+        <p class="say">apply for 10 jobs from JobStreet and LinkedIn, last 3 days</p>
+        <p class="say">apply to this job: <em style="font-weight:400">paste the link</em></p>
+        <p class="say">show me what you applied to this week</p>
+        <p class="say">add remote jobs to my search</p>
+      </div>
+      <p>A fresh search every 2–3 days works better than one huge batch.</p>
+      <div class="note"><strong>Two people on one computer?</strong>Say “set up a second person called sam”. Their CVs, answers and log stay completely separate. When it's their turn, say “apply for jobs for sam”.</div>
+    </section>
+
+    <section class="step" id="help" aria-labelledby="help-h">
+      <h2 id="help-h">If something goes wrong</h2>
+      <details><summary>Claude says Chrome isn't connected</summary><div><p>Check that Chrome is open and the Claude add-on is installed and signed in with the same account as the app. Then ask Claude to try again.</p></div></details>
+      <details><summary>“python3: command not found” or “python is not recognized”</summary><div><p>Python isn't installed yet. See step 6. On Windows, reinstall it with <strong>Add python.exe to PATH</strong> ticked, then close and reopen the Claude app.</p></div></details>
+      <details><summary>Claude used the wrong LinkedIn account</summary><div><p>Sign the other account out of Chrome, or use your own Chrome profile (step 3). Tell Claude, so it adds a warning to your <span class="path">HANDOFF.md</span>.</p></div></details>
+      <details><summary>“You've reached your usage limit”</summary><div><p>Pro has a usage limit that resets after a few hours. Wait, or move up to Max if it happens a lot.</p></div></details>
+      <details><summary>A job site asks “are you a robot?”</summary><div><p>Solve it yourself, then tell Claude to carry on. Claude won't solve these.</p></div></details>
+      <details><summary>LinkedIn warns about unusual activity</summary><div><p>Slow down. Use smaller batches spread across the day. Job sites don't like accounts that apply very fast.</p></div></details>
+      <details><summary>I want to start my answers over</summary><div><p>Delete <span class="path">HANDOFF.md</span> and say “set me up” again. Your log of past applications stays, so nothing gets applied to twice.</p></div></details>
+    </section>
+
+    <section class="step" aria-labelledby="habits-h">
+      <h2 id="habits-h">Good habits</h2>
+      <ul>
+        <li><span class="you">Check your first few applications</span> on the job site's “Applied jobs” page.</li>
+        <li>Keep <span class="path">HANDOFF.md</span> honest and up to date. It speaks for you on every form.</li>
+        <li>Ten good-fit applications beat fifty random ones.</li>
+        <li>Copy the folder to a USB drive or cloud storage now and then. The log is your record of where you've applied.</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <p>The Job Search Kit is free and open source (MIT license). Code and files: <a href="https://github.com/twentifo2404-lang/jobsearch-kit">github.com/twentifo2404-lang/jobsearch-kit</a>. It isn't made by or affiliated with Anthropic. Claude is a product of Anthropic.</p>
+</footer>
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  var store = {
+    get: function(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+    set: function(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+  };
+
+  // Mac / Windows switch
+  var os = store.get('jsk-os') || (/Win/i.test(navigator.platform || navigator.userAgent) ? 'win' : 'mac');
+  function setOS(v){
+    os = v; document.body.dataset.os = v; store.set('jsk-os', v);
+    document.querySelectorAll('[data-set-os]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.setOs === v)); });
+  }
+  document.querySelectorAll('[data-set-os]').forEach(function(b){ b.addEventListener('click', function(){ setOS(b.dataset.setOs); }); });
+  setOS(os);
+
+  // Progress tick-boxes
+  var boxes = document.querySelectorAll('[data-done]');
+  var saved = JSON.parse(store.get('jsk-done') || '[]');
+  function render(){
+    var done = [];
+    boxes.forEach(function(b){
+      b.closest('.tick').classList.toggle('checked', b.checked);
+      var li = document.querySelector('.toc li[data-step="'+b.dataset.done+'"]');
+      if (li) li.classList.toggle('done', b.checked);
+      if (b.checked) done.push(b.dataset.done);
+    });
+    store.set('jsk-done', JSON.stringify(done));
+    document.getElementById('progress-text').textContent = done.length === boxes.length
+      ? 'All set. Go get that job.' : done.length + ' of ' + boxes.length + ' steps done';
+    document.getElementById('bar').style.width = (done.length / boxes.length * 100) + '%';
+  }
+  boxes.forEach(function(b){ b.checked = saved.indexOf(b.dataset.done) > -1; b.addEventListener('change', render); });
+  render();
+
+  // Logbook: rows are written in one at a time, once
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var rows = document.querySelectorAll('.logbook tbody tr');
+    rows.forEach(function(r){ r.classList.add('pending'); });
+    rows.forEach(function(r, i){ setTimeout(function(){ r.classList.remove('pending'); }, 450 + i * 520); });
+  }
+})();
+</script>
+</body>
+</html>
