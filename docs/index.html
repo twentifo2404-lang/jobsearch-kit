@@ -68,6 +68,11 @@ code{background:#EEF2FB;padding:.1em .35em;border-radius:3px}
   box-shadow:6px 6px 0 var(--grid);
   font-size:.92rem;overflow:hidden;
 }
+.watch{margin:0 0 3rem}
+.watch h2{font-size:1.6rem;margin:0 0 .35rem}
+.watch-sub{color:var(--muted);margin:0 0 1rem;max-width:60ch}
+.watch figure{margin:0;border:2px solid var(--ink);border-radius:10px;overflow:hidden;background:#fff;box-shadow:6px 6px 0 var(--grid)}
+.watch video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:var(--paper)}
 .logbook header{display:flex;justify-content:space-between;align-items:baseline;padding:.85rem 1.1rem;border-bottom:2px solid var(--ink)}
 .logbook header h2{font-size:1rem}
 .logbook header span{color:var(--muted);font-size:.85rem}
@@ -216,7 +221,7 @@ details > div{padding:.2rem 1.1rem .9rem}
     </ul>
     <div class="actions">
       <a class="btn" href="#step-1">Start the setup</a>
-      <a class="btn ghost" href="#how">How it works</a>
+      <a class="btn ghost" href="#watch">Watch the video</a>
     </div>
   </div>
 
@@ -270,6 +275,18 @@ details > div{padding:.2rem 1.1rem .9rem}
     <div class="key">
       <p><span class="you">Highlighted text</span> is something you do yourself, such as typing a password or paying. Claude does everything else and will tell you when it needs you.</p>
     </div>
+
+    <section class="watch" id="watch" aria-labelledby="watch-h">
+      <h2 id="watch-h">See it once, start to finish</h2>
+      <p class="watch-sub">A 1½-minute walkthrough of all seven steps. Then follow them below at your own pace.</p>
+      <figure>
+        <video controls preload="metadata" playsinline poster="media/tutorial-poster.jpg" width="1280" height="720">
+          <source src="media/tutorial.mp4" type="video/mp4">
+          <track kind="captions" src="media/tutorial.en.vtt" srclang="en" label="English">
+          Your browser can't play this video. <a href="media/tutorial.mp4">Download it (MP4, 4 MB)</a>.
+        </video>
+      </figure>
+    </section>
 
     <section class="pieces" id="how" aria-labelledby="pieces-h">
       <h2 id="pieces-h">What you're setting up</h2>
