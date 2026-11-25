@@ -6,7 +6,7 @@ One or more AI agents apply for jobs on behalf of the person who owns this folde
 
 ## Files
 
-All paths are relative to this folder. If your session runs somewhere else, `cd` here first.
+All paths are relative to this folder. If your session runs somewhere else, `cd` here first. On Windows, if `python3` isn't found, use `python` or `py` instead in every command below.
 
 | File | What it is |
 |---|---|

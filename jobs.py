@@ -26,8 +26,27 @@ Candidates
   on first use. Duplicate checks only look at the chosen candidate's log, so two
   people can apply to the same job.
 """
-import argparse, csv, datetime as dt, fcntl, os, re, sys
+import argparse, csv, datetime as dt, os, re, sys
 from contextlib import contextmanager
+
+try:  # macOS / Linux
+    import fcntl
+
+    def _lock(fh):
+        fcntl.flock(fh, fcntl.LOCK_EX)
+
+    def _unlock(fh):
+        fcntl.flock(fh, fcntl.LOCK_UN)
+except ImportError:  # Windows
+    import msvcrt
+
+    def _lock(fh):
+        fh.seek(0)
+        msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)  # retries for ~10 s, then raises
+
+    def _unlock(fh):
+        fh.seek(0)
+        msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_CANDIDATE = "me"
@@ -53,7 +72,7 @@ def use_candidate(name):
     LOG, CLAIMS = os.path.join(d, "application_log.csv"), os.path.join(d, "claims.csv")
     os.makedirs(d, exist_ok=True)
     if not os.path.exists(LOG):
-        with open(LOG, "w", newline="") as f:
+        with open(LOG, "w", newline="", encoding="utf-8") as f:
             csv.writer(f).writerow(LOG_HEADER)
 
 
@@ -73,11 +92,11 @@ def now():
 @contextmanager
 def locked():
     with open(LOCK, "w") as fh:
-        fcntl.flock(fh, fcntl.LOCK_EX)
+        _lock(fh)
         try:
             yield
         finally:
-            fcntl.flock(fh, fcntl.LOCK_UN)
+            _unlock(fh)
 
 
 def job_keys(text):
@@ -124,14 +143,14 @@ def similar_role(a, b):
 def read_log():
     if not os.path.exists(LOG):
         return []
-    with open(LOG, newline="") as f:
+    with open(LOG, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
 
 
 def read_claims():
     if not os.path.exists(CLAIMS):
         return []
-    with open(CLAIMS, newline="") as f:
+    with open(CLAIMS, newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     fresh = []
     for r in rows:
@@ -144,7 +163,7 @@ def read_claims():
 
 
 def write_claims(rows):
-    with open(CLAIMS, "w", newline="") as f:
+    with open(CLAIMS, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=CLAIM_HEADER)
         w.writeheader()
         w.writerows(rows)
@@ -235,7 +254,7 @@ def main():
                 code, msg = find(a.link, None, None, a.agent)
                 if code == 1:
                     print("NOT LOGGED - " + msg); sys.exit(1)
-            with open(LOG, "a", newline="") as f:
+            with open(LOG, "a", newline="", encoding="utf-8") as f:
                 csv.writer(f).writerow([a.date, a.employer, a.role, a.location, a.link, a.cv, a.status, a.notes, a.agent])
             keys = job_keys(a.link)
             write_claims([r for r in read_claims() if r["key"] not in keys and not (

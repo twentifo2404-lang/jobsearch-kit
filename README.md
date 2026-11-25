@@ -2,6 +2,8 @@
 
 A folder that lets Claude (and optionally Codex) apply for jobs for you, in your own browser, without applying to the same job twice.
 
+> **New to Claude or GitHub? Start with the [step-by-step tutorial](TUTORIAL.md).** It covers subscribing, installing everything and your first batch of applications. No coding needed.
+
 - **You stay in control.** Claude fills forms using only answers you've confirmed. You type every password, tick every consent box and approve every message to a recruiter.
 - **One log.** Every application, skip and failure goes into `application_log.csv` through `jobs.py`, so nothing gets applied to twice, even with two agents working at once.
 - **Everything stays on your computer.** Your CVs, answers and log are git-ignored and never leave your machine.
@@ -9,7 +11,7 @@ A folder that lets Claude (and optionally Codex) apply for jobs for you, in your
 ## What you need
 - A Claude Pro or Max plan, with the **Claude desktop app** (Code tab) or **Claude Code** in a terminal
 - The **Claude in Chrome** extension, signed in to your job sites (LinkedIn, JobStreet, Indeed…)
-- Python 3.8+ (macOS or Linux; on Windows use WSL)
+- Python 3.8+ (macOS, Windows or Linux)
 - Optional: Codex, if you want a second agent applying in parallel
 
 ## Setup (about 15 minutes)
@@ -39,6 +41,7 @@ Say "set up a second person called sam". Their files go in `candidates/sam/`, an
 ## What's in here
 | File | Purpose |
 |---|---|
+| `TUTORIAL.md` | Beginner guide: subscribe, install, set up, apply |
 | `AGENTS.md` | Rules every agent follows (shared by Claude and Codex) |
 | `CLAUDE.md` | Points Claude to AGENTS.md and the skills |
 | `HANDOFF.template.md` | Blank profile; setup turns it into your `HANDOFF.md` |
