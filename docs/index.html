@@ -260,6 +260,7 @@ details > div{padding:.2rem 1.1rem .9rem}
     <div class="toc-card">
       <h2>Your progress</h2>
       <p class="progress-text" id="progress-text">0 of 7 steps done</p>
+      <p class="progress-text">Tick each step as you finish it. It also tells us, anonymously, how far people get, so we can make the guide better.</p>
       <div class="bar" aria-hidden="true"><i id="bar"></i></div>
       <ol>
         <li data-step="1"><a href="#step-1">Subscribe to Claude</a></li>
@@ -485,6 +486,7 @@ details > div{padding:.2rem 1.1rem .9rem}
 <footer class="site-foot">
   <p>The Job Search Kit is free and open source (MIT license). Code and files: <a href="https://github.com/twentifo2404-lang/jobsearch-kit">github.com/twentifo2404-lang/jobsearch-kit</a>. It isn't made by or affiliated with Anthropic. Claude is a product of Anthropic.</p>
   <p>About the video: the narration is an AI voice made with the <a href="https://huggingface.co/k2-fsa/OmniVoice">OmniVoice</a> model (Han Zhu and coauthors, CC BY-NC), so the video is for non-commercial use only. Sound effects from Pixabay. Screenshots of claude.com are shown to explain the steps.</p>
+  <p>This page counts visits, video plays, kit downloads and ticked steps with <a href="https://www.goatcounter.com">GoatCounter</a>. No cookies, and nothing that identifies you.</p>
 </footer>
 
 <script>
@@ -520,7 +522,30 @@ details > div{padding:.2rem 1.1rem .9rem}
       ? 'All set. Go get that job.' : done.length + ' of ' + boxes.length + ' steps done';
     document.getElementById('bar').style.width = (done.length / boxes.length * 100) + '%';
   }
+  // Anonymous counts (GoatCounter). Each event is sent once per browser.
+  var sent = JSON.parse(store.get('jsk-sent') || '[]');
+  function track(name, title){
+    if (sent.indexOf(name) > -1) return;
+    sent.push(name); store.set('jsk-sent', JSON.stringify(sent));
+    (function go(n){
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name, title: title, event: true });
+      else if (n < 20) setTimeout(function(){ go(n + 1); }, 500);
+    })(0);
+  }
   boxes.forEach(function(b){ b.checked = saved.indexOf(b.dataset.done) > -1; b.addEventListener('change', render); });
+  boxes.forEach(function(b){ b.addEventListener('change', function(){
+    if (!b.checked) return;
+    track('step-' + b.dataset.done + '-done', 'Step ' + b.dataset.done + ' done');
+    if (document.querySelectorAll('[data-done]:checked').length === boxes.length) track('all-steps-done', 'All 7 steps done');
+  }); });
+  var vid = document.querySelector('.watch video');
+  if (vid) {
+    vid.addEventListener('play', function(){ track('video-play', 'Video played'); });
+    vid.addEventListener('ended', function(){ track('video-finished', 'Video watched to the end'); });
+  }
+  document.querySelectorAll('a[href$="archive/refs/heads/main.zip"]').forEach(function(a){
+    a.addEventListener('click', function(){ track('kit-download', 'Kit downloaded'); });
+  });
   render();
 
   // Logbook: rows are written in one at a time, once
@@ -531,5 +556,6 @@ details > div{padding:.2rem 1.1rem .9rem}
   }
 })();
 </script>
+<script data-goatcounter="https://twentifo24.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
