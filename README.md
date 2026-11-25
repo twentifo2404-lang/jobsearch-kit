@@ -1,6 +1,26 @@
-# Job Search Kit
+<p align="center">
+  <a href="https://twentifo2404-lang.github.io/jobsearch-kit/"><img src="docs/media/og-image.jpg" alt="Job Search Kit: let Claude apply for jobs for you" width="720"></a>
+</p>
 
-A folder that lets Claude (and optionally Codex) apply for jobs for you, in your own browser, without applying to the same job twice.
+<h1 align="center">Job Search Kit</h1>
+
+<p align="center">
+  Let Claude apply for jobs for you, in your own browser, without ever applying to the same job twice.
+</p>
+
+<p align="center">
+  <a href="https://twentifo2404-lang.github.io/jobsearch-kit/"><b>Step-by-step guide</b></a> ·
+  <a href="#setup-about-15-minutes">Setup</a> ·
+  <a href="#applying">Applying</a> ·
+  <a href="#how-it-works">How it works</a>
+</p>
+
+<p align="center">
+  <img alt="Works with Claude Code" src="https://img.shields.io/badge/Claude_Code-ready-D97757">
+  <img alt="Python 3.8+" src="https://img.shields.io/badge/python-3.8%2B-3776AB?logo=python&logoColor=white">
+  <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-green">
+  <img alt="Template repo" src="https://img.shields.io/badge/use_this-template-555">
+</p>
 
 > **New to Claude or GitHub? Start with the [step-by-step guide](https://twentifo2404-lang.github.io/jobsearch-kit/).** It covers subscribing, installing everything and your first batch of applications. No coding needed.
 
@@ -34,6 +54,20 @@ Useful commands:
 python3 jobs.py recent 20     # latest applications
 python3 jobs.py claims        # what an agent is applying to right now
 ```
+
+## How it works
+```mermaid
+flowchart LR
+    A[Your CVs + answers<br/>in HANDOFF.md] --> B[Claude searches<br/>job sites]
+    B --> C{jobs.py check}
+    C -- already applied --> X[Skip]
+    C -- clear --> D[jobs.py claim]
+    D --> E[Claude fills the form<br/>in your browser]
+    E --> F[You approve<br/>and submit]
+    F --> G[jobs.py log]
+    G -.-> C
+```
+Every job goes through `check` → `claim` → `log`. The claim stops two agents (say Claude and Codex) grabbing the same job at once, and the log stops anyone applying twice.
 
 ## Two people on one computer
 Say "set up a second person called sam". Their files go in `candidates/sam/`, and Claude adds `--candidate sam` to every command for them, so the two logs never mix.
